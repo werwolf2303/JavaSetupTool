@@ -30,6 +30,7 @@ public class HTMLComponent extends JPanel implements Component{
     }
 
     public void init() {
+        setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
         pane.setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
     }
 

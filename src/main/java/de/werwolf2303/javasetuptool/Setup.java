@@ -2,13 +2,14 @@ package de.werwolf2303.javasetuptool;
 
 import de.werwolf2303.javasetuptool.components.*;
 import de.werwolf2303.javasetuptool.components.Component;
-import de.werwolf2303.javasetuptool.utils.SwingDPI;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Set;
 
 public class Setup {
     Setup setup = this;
@@ -21,6 +22,8 @@ public class Setup {
         public String progname = "";
         public String progversion = "";
         public Runnable finish;
+        public String uxmlat = "";
+        public boolean buxml = false;
         public InputStream imageStream = null;
         InstallProgressComponent installProgressComponent = null;
         public ArrayList<Component> components = new ArrayList<Component>();
@@ -41,6 +44,12 @@ public class Setup {
 
         public SetupBuilder setProgramImage(InputStream stream) {
             this.imageStream = stream;
+            return this;
+        }
+
+        public SetupBuilder autoBuildUninstallerXML(String at) {
+            buxml = true;
+            uxmlat = at;
             return this;
         }
 
@@ -90,14 +99,12 @@ public class Setup {
         public SetupFrame() {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }catch (UnsupportedLookAndFeelException ignored) {
-            } catch (ClassNotFoundException ignored) {
-            } catch (InstantiationException ignored) {
-            } catch (IllegalAccessException ignored) {
+            }catch (UnsupportedLookAndFeelException | InstantiationException | IllegalAccessException |
+                    ClassNotFoundException ignored) {
             }
             frame = new JFrame(currentBuilder.title);
             frame.getContentPane().add(manager);
-            frame.setPreferredSize(SwingDPI.scale(new Dimension(PublicValues.setup_width, PublicValues.setup_height)));
+            frame.setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height));
         }
 
         public void open() {
@@ -136,6 +143,7 @@ public class Setup {
             Runnable fin = new Runnable() {
                 public void run() {
                     currentBuilder.installProgressComponent.setVisible(false);
+                    component.nowVisible();
                     component.setVisible(true);
                     cancel.setVisible(true);
                     nextinstall.setVisible(false);
@@ -154,6 +162,7 @@ public class Setup {
 
 
             public ContentManager() {
+                PublicValues.INTERNALContentManager = content;
                 navigation = new JPanel();
                 navigation.setLayout(null);
                 add(content);
@@ -197,20 +206,55 @@ public class Setup {
                     content.add(currentBuilder.components.get(i).drawable(), BorderLayout.CENTER);
                     currentBuilder.components.get(i).drawable().setVisible(false);
                 }
-                component = new FinishComponent(setup);
-                component.setImage(getProgramImage());
-                component.setVisible(false);
-                welcomeComponent = new WelcomeComponent(setup);
-                welcomeComponent.setImage(getProgramImage());
+                if(getProgramImage() != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    try {
+                        org.apache.commons.io.IOUtils.copy(getProgramImage(), baos);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    byte[] bytes = baos.toByteArray();
+                    welcomeComponent = new WelcomeComponent(setup);
+                    welcomeComponent.setImage(new ByteArrayInputStream(bytes));
+                    welcomeComponent.nowVisible();
+                    component = new FinishComponent(setup);
+                    component.setImage(new ByteArrayInputStream(bytes));
+                    component.setVisible(false);
+                }else{
+                    welcomeComponent = new WelcomeComponent(setup);
+                    welcomeComponent.nowVisible();
+                    component = new FinishComponent(setup);
+                    component.setVisible(false);
+                }
                 currentBuilder.components.add(0, new PrivateComponentAdapter(welcomeComponent));
                 content.add(welcomeComponent, BorderLayout.CENTER);
                 content.add(component, BorderLayout.CENTER);
-                content.add(currentBuilder.installProgressComponent.drawable(), BorderLayout.CENTER);
-                currentBuilder.installProgressComponent.setVisible(false);
+                if(currentBuilder.installProgressComponent != null) {
+                    content.add(currentBuilder.installProgressComponent.drawable(), BorderLayout.CENTER);
+                    currentBuilder.installProgressComponent.setVisible(false);
+                }
                 navigation.add(usercontrolablebuttons);
                 usercontrolablebuttons.add(custom1);
                 usercontrolablebuttons.add(custom2);
                 add(navigation);
+                PublicValues.install = new Runnable() {
+                    @Override
+                    public void run() {
+                        install();
+                    }
+                };
+                PublicValues.resetNext = new Runnable() {
+                    @Override
+                    public void run() {
+                       setNormalButtonsVisible();
+                    }
+                };
+                PublicValues.changeinstall = new Runnable() {
+                    @Override
+                    public void run() {
+                        nextinstall.setText("Install");
+                    }
+                };
             }
 
             void setInstallVisible() {
@@ -244,6 +288,9 @@ public class Setup {
             }
 
             void next() {
+                if(PublicValues.INTERNALBlockNextPrev) {
+                    return;
+                }
                 if(nextinstall.getText().equals("Install")) {
                     currentBuilder.components.get(at).onLeave();
                     install();
@@ -261,12 +308,17 @@ public class Setup {
                 if(at != 0) {
                     back.setVisible(true);
                 }
-                if(at + 2 > currentBuilder.components.size()) {
-                    setInstallVisible();
+                if(!(currentBuilder.components.get(at) instanceof SetupTypeComponent)) {
+                    if (at + 2 > currentBuilder.components.size()) {
+                        setInstallVisible();
+                    }
                 }
             }
 
             void previous() {
+                if(PublicValues.INTERNALBlockNextPrev) {
+                    return;
+                }
                 if(at + 1 > currentBuilder.components.size()) {
                     setNormalButtonsVisible();
                 }

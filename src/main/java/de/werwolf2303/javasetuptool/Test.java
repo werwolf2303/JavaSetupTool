@@ -10,9 +10,13 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -51,9 +55,20 @@ public class Test {
 
     public static void main(String[] args) throws ParserConfigurationException {
         Setup setup = new Setup();
-        InstallProgressComponent progressComponent = new InstallProgressComponent();
+        new CanvasComponent().setOnDraw(new CanvasComponent.DrawEvent() {
+            @Override
+            public void trigger(Graphics g) {
+
+            }
+        });
         HTMLComponent component = new HTMLComponent();
-        component.load("<a>Hello</a>");
-        setup.open(new Setup.SetupBuilder().setInstallComponent(progressComponent).addComponent(component).setProgramName("SpotifyXP").setProgramVersion("2.0.0").setProgramImage(new Resources().readToInputStream("spotifyxp.png")).build());
+        InstallProgressComponent installProgressComponent = new InstallProgressComponent();
+        component.load("<a>This text is displayed</a>");
+        setup.open(new Setup.SetupBuilder()
+                .addComponent(component)
+                .setInstallComponent(installProgressComponent)
+                .setProgramName("My Application")
+                .setProgramVersion("1.0")
+                .build());
     }
 }

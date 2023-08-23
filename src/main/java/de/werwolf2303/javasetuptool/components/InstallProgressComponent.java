@@ -2,14 +2,16 @@ package de.werwolf2303.javasetuptool.components;
 
 import de.werwolf2303.javasetuptool.PublicValues;
 import de.werwolf2303.javasetuptool.Setup;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import de.werwolf2303.javasetuptool.uninstaller.Uninstaller;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -20,24 +22,78 @@ public class InstallProgressComponent extends JPanel implements Component {
     JProgressBar progress;
     JTextArea operationlog;
     JLabel operationpath;
+    JScrollPane pane;
+    static FeatureSelectionComponent component;
+    Setup.SetupBuilder builder;
+    Uninstaller uninstaller;
+    ArrayList<String> files = new ArrayList<>();
+    ArrayList<String> folders = new ArrayList<>();
+    boolean bu = false;
 
     public InstallProgressComponent() {
         setLayout(null);
         progress = new JProgressBar();
         add(progress);
-        operationlog = new JTextArea();
+        pane = new JScrollPane();
+        operationlog = new JTextArea() {
+            @Override
+            public void append(String str) {
+                super.append(str);
+                pane.getVerticalScrollBar().setValue(pane.getVerticalScrollBar().getMaximum());
+            }
+        };
         operationlog.setEditable(false);
-        add(operationlog);
+        pane.setViewportView(operationlog);
+        add(pane);
         operationpath = new JLabel();
         progress.setMinimum(0);
         progress.setValue(0);
         add(operationpath);
     }
 
+    public InstallProgressComponent(FeatureSelectionComponent component) {
+        setLayout(null);
+        progress = new JProgressBar();
+        add(progress);
+        pane = new JScrollPane();
+        operationlog = new JTextArea() {
+            @Override
+            public void append(String str) {
+                super.append(str);
+                pane.getVerticalScrollBar().setValue(pane.getVerticalScrollBar().getMaximum());
+            }
+        };
+        operationlog.setEditable(false);
+        pane.setViewportView(operationlog);
+        add(pane);
+        operationpath = new JLabel();
+        progress.setMinimum(0);
+        progress.setValue(0);
+        add(operationpath);
+        this.component = component;
+    }
+
     public static class FileOperationBuilder {
         private FileOperation internal = new FileOperation();
+
         public FileOperationBuilder setType(FileOperationTypes type) {
             internal.operationType = type;
+            return this;
+        }
+
+        public FileOperationBuilder setDownloadURL(String url) {
+            if (internal.operationType != FileOperationTypes.DOWNLOAD) {
+                throw new UnsupportedOperationException("Download only available when using the DOWNLOAD type");
+            }
+            internal.url = url;
+            return this;
+        }
+
+        public FileOperationBuilder setForFeature(FeatureSelectionComponent.Feature feature) {
+            if (component == null) {
+                throw new UnsupportedOperationException("setForFeature is only supported with the combination of FeatureSelectionComponent");
+            }
+            internal.feature = feature;
             return this;
         }
 
@@ -74,78 +130,192 @@ public class InstallProgressComponent extends JPanel implements Component {
         fileOperations.add(builder.internal);
     }
 
+    boolean failState = false;
+
     void doOperations() {
+        operationpath.setText("Penis Penis Penis Penis");
         progress.setMaximum(fileOperations.size());
-        for(FileOperation operation : fileOperations) {
+        for (FileOperation operation : fileOperations) {
             switch (operation.operationType) {
                 case COPY:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     try {
                         operationpath.setText(new File(operation.to).getAbsolutePath());
                         operationlog.append("Copy from=>'" + operation.from + "' to=>'" + operation.to + "'\n");
                         Files.copy(Paths.get(operation.from), Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
                         operation.succeeded = false;
                     }
                     break;
                 case MOVE:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     try {
                         operationpath.setText(new File(operation.to).getAbsolutePath());
                         operationlog.append("Moving from=>'" + operation.from + "' to=>'" + operation.to + "'\n");
                         Files.move(Paths.get(operation.from), Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
                         operation.succeeded = false;
                     }
                     break;
                 case CREATEFILE:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     try {
                         operationpath.setText(new File(operation.from).getAbsolutePath());
                         operationlog.append("Creating file=>'" + operation.from + "'\n");
                         operation.succeeded = new File(operation.from).createNewFile();
+                        files.add(operation.from);
                     } catch (IOException e) {
                         operation.succeeded = false;
                     }
                     break;
                 case CREATEDIR:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     operationpath.setText(new File(operation.from).getAbsolutePath());
-                    operationlog.append("Creating directory =>'" + operation.from + "'\n");
+                    operationlog.append("Creating directory=>'" + operation.from + "'\n");
                     operation.succeeded = new File(operation.from).mkdir();
+                    folders.add(operation.from);
                     break;
                 case DELETE:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     operationpath.setText(new File(operation.from).getAbsolutePath());
-                    operationlog.append("Deleting =>'" + operation.from + "'\n");
+                    operationlog.append("Deleting=>'" + operation.from + "'\n");
                     operation.succeeded = new File(operation.from).delete();
+                    if(new File(operation.from).isDirectory()) {
+                        folders.add(operation.from);
+                    }else{
+                        files.add(operation.from);
+                    }
                     break;
                 case COPYSTREAM:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
                     operationpath.setText(new File(operation.to).getAbsolutePath());
                     operationlog.append("Copying stream to=>" + operation.to + "\n");
                     try {
                         Files.copy(operation.fromStream, Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
                         operation.succeeded = false;
                     }
                     break;
                 case CUSTOM:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
+                    operationpath.setText("Executing custom Java");
                     operationlog.append("Executing custom java\n");
                     operation.customCode.run();
                     break;
+                case DOWNLOAD:
+                    if (operation.feature != null) {
+                        if (!component.getFeatures().contains(operation.feature)) {
+                            break;
+                        }
+                    }
+                    operationpath.setText("Downloading " + operation.url);
+                    operationlog.append("Downloading File from=>" + operation.url + "\n");
+                    try {
+                        URL url = new URL(operation.url);
+                        HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
+                        long completeFileSize = httpConnection.getContentLength();
+                        java.io.BufferedInputStream in = new java.io.BufferedInputStream(httpConnection.getInputStream());
+                        java.io.FileOutputStream fos = new java.io.FileOutputStream(
+                                operation.to);
+                        java.io.BufferedOutputStream bout = new BufferedOutputStream(
+                                fos, 1024);
+                        byte[] data = new byte[1024];
+                        long downloadedFileSize = 0;
+                        int x = 0;
+                        float last = 0;
+                        while ((x = in.read(data, 0, 1024)) >= 0) {
+                            downloadedFileSize += x;
+                            float percentage = ((float) downloadedFileSize) / completeFileSize * 100;
+                            if(!String.format("%.0f", percentage).equals(String.format("%.0f", last))) {
+                                operationlog.append("Downloading File from=>" + operation.url + " Progress=>" + String.format("%.0f", percentage) + "%\n");
+                            }
+                            last = percentage;
+                            bout.write(data, 0, x);
+                        }
+                        bout.close();
+                        in.close();
+                        files.add(operation.to);
+                        operation.succeeded = true;
+                    } catch (IOException e) {
+                        operation.succeeded = false;
+                    }
+                    break;
             }
-            progress.setValue(progress.getValue()+1);
+            if (!operation.succeeded) {
+                failState = true;
+                break;
+            }
+            progress.setValue(progress.getValue() + 1);
         }
-        operationsFinished();
+        if (failState) {
+            progress.setForeground(Color.RED);
+        } else {
+            if(bu) {
+                try {
+                    uninstaller.buildUninstaller(files, folders, builder.progname, builder.progversion, builder.uxmlat);
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                    operationlog.append("Failed building uninstaller\n");
+                }
+            }
+            operationpath.setText("Install Finished");
+            operationsFinished();
+        }
     }
 
     public void init() {
+        if(builder.buxml) {
+            bu = true;
+            uninstaller = new Uninstaller();
+        }
         setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
-        progress.setBounds(3, 64, PublicValues.setup_width - 6, 20);
-        operationpath.setBounds(6, 36, PublicValues.setup_width - 6, 16);
-        operationlog.setBounds(6, 96, PublicValues.setup_width - 6, 185);
+        progress.setBounds(3, 46, PublicValues.setup_width - 6, 25);
+        operationpath.setBounds(6, 24, PublicValues.setup_width - 6, 16);
+        pane.setBounds(6, 96, PublicValues.setup_width - 6, 185);
     }
 
     public void nowVisible() {
-        doOperations();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                doOperations();
+            }
+        });
+        t.start();
     }
 
     public void onLeave() {
@@ -166,12 +336,13 @@ public class InstallProgressComponent extends JPanel implements Component {
         this.cancel = cancel;
         this.custom1 = custom1;
         this.custom2 = custom2;
+        this.builder = builder;
     }
 
     void operationsFinished() {
         this.next.setText("Next >");
         this.next.setVisible(true);
-        for(ActionListener l : this.next.getActionListeners()) {
+        for (ActionListener l : this.next.getActionListeners()) {
             this.next.removeActionListener(l);
         }
         this.next.addActionListener(new ActionListener() {
@@ -188,7 +359,8 @@ public class InstallProgressComponent extends JPanel implements Component {
         COPY,
         COPYSTREAM,
         DELETE,
-        CUSTOM
+        CUSTOM,
+        DOWNLOAD
     }
 
     public static class FileOperation {
@@ -197,6 +369,8 @@ public class InstallProgressComponent extends JPanel implements Component {
         String to = "";
         boolean succeeded = false;
         Runnable customCode;
+        String url = "";
         FileOperationTypes operationType;
+        FeatureSelectionComponent.Feature feature = null;
     }
 }

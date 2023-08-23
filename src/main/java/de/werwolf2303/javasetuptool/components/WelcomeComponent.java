@@ -26,8 +26,9 @@ public class WelcomeComponent extends JPanel implements PrivateComponent {
         pane.setEditable(false);
         pane.setContentType("text/html");
         image = new JLabel();
-        add(image, BorderLayout.WEST);
-        add(pane, BorderLayout.EAST);
+        setLayout(null);
+        add(image);
+        add(pane);
     }
 
     public void setImage(InputStream stream) {
@@ -42,15 +43,22 @@ public class WelcomeComponent extends JPanel implements PrivateComponent {
     }
 
     public void init() {
-        image.setPreferredSize(new Dimension(PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
-        pane.setPreferredSize(new Dimension(PublicValues.setup_width - PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
+        setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
+        //image.setPreferredSize(new Dimension(PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
+        image.setBounds(0, 0, PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height);
+        pane.setBounds((int) (image.getBounds().getX() + image.getBounds().getWidth() + 4), 0, (int) (PublicValues.setup_width - image.getBounds().getX() + image.getBounds().getWidth() + 4), PublicValues.setup_height - PublicValues.setup_bar_height);
+        //pane.setPreferredSize(new Dimension(PublicValues.setup_width - PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
         pane.setText("<h2 style='text-align:left'>Welcome to the " + setup.getProgramName() + " Setup Wizard</h2><br><br><br><a style='text-align:left'>This will install " + setup.getProgramName() + " version " + setup.getProgramVersion() + " on your computer.</a><br><br><a>Click next to continue, or cancel to exit Setup</a>");
-        try {
-            ImageIcon imageIcon = new ImageIcon(ImageIO.read(builder.imageStream));
-            Image img = imageIcon.getImage();
-            Image newimg = img.getScaledInstance(image.getWidth(), image.getHeight(),  java.awt.Image.SCALE_SMOOTH);
-            image.setIcon(new ImageIcon(newimg));
-        } catch (IOException ignored) {
+        if(image.getIcon() == null) {
+            if(imageStream != null) {
+                try {
+                    ImageIcon imageIcon = new ImageIcon(ImageIO.read(imageStream));
+                    Image img = imageIcon.getImage();
+                    Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), java.awt.Image.SCALE_SMOOTH);
+                    image.setIcon(new ImageIcon(newimg));
+                } catch (IOException ignored) {
+                }
+            }
         }
         repaint();
     }
