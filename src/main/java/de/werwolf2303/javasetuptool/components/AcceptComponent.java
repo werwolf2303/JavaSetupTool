@@ -14,6 +14,12 @@ public class AcceptComponent extends JPanel implements Component {
     JScrollPane pane;
     JEditorPane content;
     boolean scrolldown = false;
+
+    @Override
+    public String getName() {
+        return "AcceptComponent";
+    }
+
     public AcceptComponent() {
         content = new JEditorPane();
         content.setEditable(false);
@@ -34,7 +40,6 @@ public class AcceptComponent extends JPanel implements Component {
             e.printStackTrace();
         }
     }
-
     public void setText(String text) {
         content.setText(text);
     }

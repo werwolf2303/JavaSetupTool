@@ -10,6 +10,11 @@ public class CustomComponent extends JPanel implements Component {
         return this;
     }
 
+    @Override
+    public String getName() {
+        return "CustomComponent";
+    }
+
     public void addComponent(java.awt.Component component, Object layout) {
         add(component, layout);
     }
@@ -31,10 +36,6 @@ public class CustomComponent extends JPanel implements Component {
     }
 
     public void giveComponents(JButton next, JButton previous, JButton cancel, JButton custom1, JButton custom2, Runnable fin, Setup.SetupBuilder builder) {
-
-    }
-
-    public void giveComponents(JButton next, JButton previous, JButton cancel, JButton custom1, JButton custom2, Runnable fin) {
 
     }
 }
