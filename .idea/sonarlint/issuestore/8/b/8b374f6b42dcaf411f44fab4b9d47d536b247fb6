@@ -1,0 +1,35 @@
+
+
+java:S1186€"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ŠÎÖÑúÿÿÿÿ
+h
+java:S1845v"MRename method "next" to prevent any misunderstanding/clash with field "next".(şÒÎÙıÿÿÿÿ
+=
+java:S1948"'Make "setup" transient or serializable.(¢ıß
+I
+java:S1948"3Make "typicalcomponents" transient or serializable.(Ã¹Êó
+M
+java:S1948"2Make "customcomponents" transient or serializable.(ääĞäüÿÿÿÿ
+I
+java:S1948"4Make "completecomponents" transient or serializable.(ú†­
+?
+java:S1948")Make "builder" transient or serializable.(Œ›ı¸
+@
+java:S1948"%Make "fin" transient or serializable.(Š¶°—şÿÿÿÿ
+J
+java:S1948Û".Make "nextlistener" transient or serializable.(ÛÔ¿áûÿÿÿÿ
+E
+java:S1948Ü".Make "prevlistener" transient or serializable.(¤‘€æ
+K
+java:S26960"6Make the enclosing method "static" or remove this set.(ÔÆ’V
+Q
+java:S2696F"6Make the enclosing method "static" or remove this set.(…÷ûÿÿÿÿ
+Q
+java:S2696W"6Make the enclosing method "static" or remove this set.(¨˜ğ™ıÿÿÿÿ
+m
+java:S3776v"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(şÒÎÙıÿÿÿÿ
+i
+java:S3776ò"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(¥ñ¾ù
+R
+java:S2696ø"6Make the enclosing method "static" or remove this set.(Ü‚„¯øÿÿÿÿ
+R
+java:S2696ü"6Make the enclosing method "static" or remove this set.(öœÄÑûÿÿÿÿ

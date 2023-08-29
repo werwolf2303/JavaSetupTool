@@ -1,0 +1,23 @@
+
+œ
+java:S1186>"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(°¡Ğüûÿÿÿÿ
+œ
+java:S1186B"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ŠÎÖÑúÿÿÿÿ
+=
+java:S1948"'Make "setup" transient or serializable.(¢ıß
+C
+java:S1948"(Make "stream" transient or serializable.(Œùã”ÿÿÿÿÿ
+?
+java:S1948")Make "builder" transient or serializable.(Œ›ı¸
+U
+java:S1161$":Add the "@Override" annotation above this method signature(ú›Šøøÿÿÿÿ
+Q	java:S125-"<This block of commented-out lines of code should be removed.(Ê­ÿ€
+Q	java:S1250"<This block of commented-out lines of code should be removed.(ï¡€ê
+=	java:S1088")Either remove or fill this block of code.(”ã‰G
+d
+java:S1128"IRemove this unused import 'de.werwolf2303.javasetuptool.utils.Resources'.(Ü°¯Àıÿÿÿÿ
+P
+java:S1128":Remove this unused import 'org.apache.commons.io.IOUtils'.(Ì–’
+N
+java:S1128
+"3Remove this unused import 'javax.swing.text.Style'.(¤¦Ëıÿÿÿÿ

@@ -1,0 +1,21 @@
+
+z
+Jsrc/main/java/de/werwolf2303/javasetuptool/components/CustomComponent.java,2/8/2842aee2daa5e481cbb61c39929a8d1dd17ed3a0
+9
+	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+z
+Jsrc/main/java/de/werwolf2303/javasetuptool/components/FinishComponent.java,1/2/12c60dca53b4f40ffa09fe6f557beac7777d96ba
+z
+Jsrc/main/java/de/werwolf2303/javasetuptool/components/CanvasComponent.java,5/1/51f69d0b051ca466b01a9705f791cd1e853115d7
+e
+5src/main/java/de/werwolf2303/javasetuptool/Setup.java,6/0/60a13fe4a123d35c36c04cf34ab5a3c0d743c607
+}
+Msrc/main/java/de/werwolf2303/javasetuptool/components/SetupTypeComponent.java,8/b/8b374f6b42dcaf411f44fab4b9d47d536b247fb6
+d
+4src/main/java/de/werwolf2303/javasetuptool/Test.java,9/2/920b7627b14ee76230d4a0d6c41cf9b8417fd5c6
+„
+Tsrc/main/java/de/werwolf2303/javasetuptool/components/FeatureSelectionComponent.java,1/1/1175d4a76489aef89b1aff072385a07097e0739c
+x
+Hsrc/main/java/de/werwolf2303/javasetuptool/components/HTMLComponent.java,7/d/7d28f1f2ddff70dbda8361f35e50899fbf9c0223
+ƒ
+Ssrc/main/java/de/werwolf2303/javasetuptool/components/InstallProgressComponent.java,3/6/365e8aa3ab8246d4cdc3ed468f6e5c54319dcccb

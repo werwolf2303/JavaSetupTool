@@ -1,0 +1,21 @@
+
+†
+java:S1319'"pThe return type of this method should be an interface such as "List" rather than the implementation "ArrayList".(ã«çÜ
+C
+java:S1604:"(Make this anonymous inner class a lambda(Ü›™‹øÿÿÿÿ
+f
+java:S1104"PMake name a static final constant or non-public and provide accessors if needed.( şÍ¾
+o
+java:S1104"TMake selected a static final constant or non-public and provide accessors if needed.(ŒÈ¾üüÿÿÿÿ
+j
+java:S1104"TMake required a static final constant or non-public and provide accessors if needed.(ÜÜŠÜ
+œ
+java:S1186]"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(°¡Ğüûÿÿÿÿ
+?
+java:S1948")Make "builder" transient or serializable.(Œ›ı¸
+E
+java:S1948"*Make "features" transient or serializable.(ö•ò¯úÿÿÿÿ
+h
+java:S3776,"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.( Üó
+Q
+java:S2696c"6Make the enclosing method "static" or remove this set.(áåî¥úÿÿÿÿ

@@ -146,7 +146,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     try {
                         operationpath.setText(new File(operation.to).getAbsolutePath());
                         operationlog.append("Copy from=>'" + operation.from + "' to=>'" + operation.to + "'\n");
-                        Files.copy(Paths.get(operation.from), Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(Paths.get(new File(operation.from).getAbsolutePath()), Paths.get(new File(operation.to).getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
                         files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
@@ -162,7 +162,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     try {
                         operationpath.setText(new File(operation.to).getAbsolutePath());
                         operationlog.append("Moving from=>'" + operation.from + "' to=>'" + operation.to + "'\n");
-                        Files.move(Paths.get(operation.from), Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        Files.move(Paths.get(new File(operation.from).getAbsolutePath()), Paths.get(new File(operation.to).getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
                         files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
@@ -178,6 +178,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     try {
                         operationpath.setText(new File(operation.from).getAbsolutePath());
                         operationlog.append("Creating file=>'" + operation.from + "'\n");
+                        if(new File(operation.from).exists()) { files.add(operation.from); operation.succeeded = true; break; }
                         operation.succeeded = new File(operation.from).createNewFile();
                         files.add(operation.from);
                     } catch (IOException e) {
@@ -192,6 +193,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     }
                     operationpath.setText(new File(operation.from).getAbsolutePath());
                     operationlog.append("Creating directory=>'" + operation.from + "'\n");
+                    if(new File(operation.from).exists()) { files.add(operation.from); operation.succeeded = true; break; }
                     operation.succeeded = new File(operation.from).mkdir();
                     folders.add(operation.from);
                     break;
@@ -219,7 +221,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     operationpath.setText(new File(operation.to).getAbsolutePath());
                     operationlog.append("Copying stream to=>" + operation.to + "\n");
                     try {
-                        Files.copy(operation.fromStream, Paths.get(operation.to), StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(operation.fromStream, Paths.get(new File(operation.to).getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
                         files.add(operation.to);
                         operation.succeeded = true;
                     } catch (IOException e) {
@@ -235,6 +237,7 @@ public class InstallProgressComponent extends JPanel implements Component {
                     operationpath.setText("Executing custom Java");
                     operationlog.append("Executing custom java\n");
                     operation.customCode.run();
+                    operation.succeeded = true;
                     break;
                 case DOWNLOAD:
                     if (operation.feature != null) {
@@ -248,10 +251,10 @@ public class InstallProgressComponent extends JPanel implements Component {
                         URL url = new URL(operation.url);
                         HttpURLConnection httpConnection = (HttpURLConnection) (url.openConnection());
                         long completeFileSize = httpConnection.getContentLength();
-                        java.io.BufferedInputStream in = new java.io.BufferedInputStream(httpConnection.getInputStream());
-                        java.io.FileOutputStream fos = new java.io.FileOutputStream(
+                        BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+                        FileOutputStream fos = new FileOutputStream(
                                 operation.to);
-                        java.io.BufferedOutputStream bout = new BufferedOutputStream(
+                        BufferedOutputStream bout = new BufferedOutputStream(
                                 fos, 1024);
                         byte[] data = new byte[1024];
                         long downloadedFileSize = 0;
