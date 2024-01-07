@@ -2,6 +2,7 @@ package de.werwolf2303.javasetuptool.components;
 
 import de.werwolf2303.javasetuptool.PublicValues;
 import de.werwolf2303.javasetuptool.Setup;
+import de.werwolf2303.javasetuptool.logging.ConsoleLogging;
 import de.werwolf2303.javasetuptool.utils.StreamUtils;
 
 import javax.swing.*;
@@ -9,9 +10,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 
-public class HTMLComponent extends JPanel implements Component{
-    String defaultHTML = "<a>Load HTML with the 'load()' function</a>";
-    JEditorPane pane;
+public class HTMLComponent extends JPanel implements de.werwolf2303.javasetuptool.components.Component {
+    final String defaultHTML = "<a>Load HTML with the 'load()' function</a>";
+    final JEditorPane pane;
 
     public HTMLComponent() {
         pane = new JEditorPane();
@@ -54,7 +55,7 @@ public class HTMLComponent extends JPanel implements Component{
         try {
             pane.setText(StreamUtils.inputStreamToString(url.openStream()));
         } catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogging.Throwable(e);
         }
     }
 }

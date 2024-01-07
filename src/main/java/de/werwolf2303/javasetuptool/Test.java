@@ -1,24 +1,12 @@
 package de.werwolf2303.javasetuptool;
 
-import de.werwolf2303.javasetuptool.components.*;
-import de.werwolf2303.javasetuptool.uninstaller.Uninstaller;
+import de.werwolf2303.javasetuptool.components.CanvasComponent;
+import de.werwolf2303.javasetuptool.components.HTMLComponent;
+import de.werwolf2303.javasetuptool.components.InstallProgressComponent;
 import de.werwolf2303.javasetuptool.utils.Resources;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Set;
 
 public class Test {
     /*public static void main(String[] args) {
@@ -67,6 +55,7 @@ public class Test {
         setup.open(new Setup.SetupBuilder()
                 .addComponent(component)
                 .setInstallComponent(installProgressComponent)
+                .setProgramImage(new Resources().readToInputStream("test.png"))
                 .setProgramName("My Application")
                 .setProgramVersion("1.0")
                 .build());

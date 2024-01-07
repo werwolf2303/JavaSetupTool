@@ -2,21 +2,17 @@ package de.werwolf2303.javasetuptool.components;
 
 import de.werwolf2303.javasetuptool.PublicValues;
 import de.werwolf2303.javasetuptool.Setup;
-import de.werwolf2303.javasetuptool.utils.Resources;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class WelcomeComponent extends JPanel implements PrivateComponent {
-    Setup setup;
-    JEditorPane pane;
-    JLabel image;
+    final Setup setup;
+    final JEditorPane pane;
+    final JLabel image;
     InputStream imageStream = null;
     Setup.SetupBuilder builder;
     public WelcomeComponent(Setup setup) {
@@ -54,7 +50,7 @@ public class WelcomeComponent extends JPanel implements PrivateComponent {
                 try {
                     ImageIcon imageIcon = new ImageIcon(ImageIO.read(imageStream));
                     Image img = imageIcon.getImage();
-                    Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), java.awt.Image.SCALE_SMOOTH);
+                    Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), Image.SCALE_SMOOTH);
                     image.setIcon(new ImageIcon(newimg));
                 } catch (IOException ignored) {
                 }

@@ -2,19 +2,17 @@ package de.werwolf2303.javasetuptool.components;
 
 import de.werwolf2303.javasetuptool.PublicValues;
 import de.werwolf2303.javasetuptool.Setup;
-import de.werwolf2303.javasetuptool.utils.Resources;
-import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.text.Style;
 import java.awt.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FinishComponent extends JPanel implements PrivateComponent {
-    Setup setup;
-    JEditorPane pane;
-    JLabel image;
+    final Setup setup;
+    final JEditorPane pane;
+    final JLabel image;
     InputStream stream = null;
     Setup.SetupBuilder builder;
     public FinishComponent(Setup setup) {
@@ -42,18 +40,16 @@ public class FinishComponent extends JPanel implements PrivateComponent {
 
     public void init() {
         setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
-        //image.setPreferredSize(new Dimension(PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
         image.setBounds(0, 0, PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height);
         pane.setBounds((int) (image.getBounds().getX() + image.getBounds().getWidth() + 4), 0, (int) (PublicValues.setup_width - image.getBounds().getX() + image.getBounds().getWidth() + 4), PublicValues.setup_height - PublicValues.setup_bar_height);
-        //pane.setPreferredSize(new Dimension(PublicValues.setup_width - PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
         pane.setText("<h2 style='text-align:left'>Completing the " + setup.getProgramName() + " Setup Wizard</h2><br><br><br><a style='text-align:left'>Setup has finished installing " + setup.getProgramName() + " version " + setup.getProgramVersion() + " <br>on your computer. The application may be launched by <br> selecting the installed icons.</a><br><br><a>Click Finish to exit Setup</a>");
         if(image.getIcon() == null) {
             try {
                 ImageIcon imageIcon = new ImageIcon(ImageIO.read(stream));
                 Image img = imageIcon.getImage();
-                Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), java.awt.Image.SCALE_SMOOTH);
+                Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), Image.SCALE_SMOOTH);
                 image.setIcon(new ImageIcon(newimg));
-            } catch (IOException ignored) {
+            } catch (IOException | IllegalArgumentException ignored) {
             }
         }
         repaint();

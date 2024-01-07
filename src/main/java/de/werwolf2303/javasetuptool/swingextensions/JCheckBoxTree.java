@@ -6,26 +6,19 @@ https://stackoverflow.com/questions/21847411/java-swing-need-a-good-quality-deve
 Posted from: https://stackoverflow.com/users/3322273/somethingsomething
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.Point2D;
-import java.lang.reflect.Array;
-import java.util.*;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.*;
 
 public class JCheckBoxTree extends JTree {
 
-    JCheckBoxTree selfPointer = this;
-    CheckBoxListener l = new CheckBoxListener() {
-        @Override
-        public void onTrigger(JCheckBox checkBox) {
-            //Default
-        }
+    final JCheckBoxTree selfPointer = this;
+    CheckBoxListener l = checkBox -> {
+        //Default
     };
 
 
@@ -37,9 +30,9 @@ public class JCheckBoxTree extends JTree {
 
     // Defining data structure that will enable to fast check-indicate the state of each node
     // It totally replaces the "selection" mechanism of the JTree
-    private class CheckedNode {
-        boolean isSelected = false;
-        boolean hasChildren;
+    private static class CheckedNode {
+        boolean isSelected;
+        final boolean hasChildren;
         boolean allChildrenSelected;
 
         public CheckedNode(boolean isSelected_, boolean hasChildren_, boolean allChildrenSelected_) {
@@ -49,12 +42,12 @@ public class JCheckBoxTree extends JTree {
         }
     }
     HashMap<TreePath, CheckedNode> nodesCheckingState;
-    HashSet<TreePath> checkedPaths = new HashSet<TreePath>();
+    HashSet<TreePath> checkedPaths = new HashSet<>();
 
     // Defining a new event type for the checking mechanism and preparing event-handling mechanism
-    protected EventListenerList listenerList = new EventListenerList();
+    protected final EventListenerList listenerList = new EventListenerList();
 
-    public class CheckChangeEvent extends EventObject {
+    public static class CheckChangeEvent extends EventObject {
         private static final long serialVersionUID = -8100230309044193368L;
 
         public CheckChangeEvent(Object source) {
@@ -63,7 +56,7 @@ public class JCheckBoxTree extends JTree {
     }
 
     public interface CheckChangeEventListener extends EventListener {
-        public void checkStateChanged(CheckChangeEvent event);
+        void checkStateChanged(CheckChangeEvent event);
     }
 
     public void addCheckChangeEventListener(CheckChangeEventListener listener) {
@@ -90,7 +83,7 @@ public class JCheckBoxTree extends JTree {
 
     // New method that returns only the checked paths (totally ignores original "selection" mechanism)
     public TreePath[] getCheckedPaths() {
-        return checkedPaths.toArray(new TreePath[checkedPaths.size()]);
+        return checkedPaths.toArray(new TreePath[0]);
     }
 
     // Returns true in case that the node is selected, has children but not all of them are selected
@@ -100,8 +93,8 @@ public class JCheckBoxTree extends JTree {
     }
 
     private void resetCheckingState() {
-        nodesCheckingState = new HashMap<TreePath, CheckedNode>();
-        checkedPaths = new HashSet<TreePath>();
+        nodesCheckingState = new HashMap<>();
+        checkedPaths = new HashSet<>();
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) getModel().getRoot();
         if (node == null) {
             return;
@@ -124,7 +117,7 @@ public class JCheckBoxTree extends JTree {
     }
 
     // Creating data structure of the current model for the checking mechanism
-    ArrayList<Boolean> checkmodes = new ArrayList<>();
+    final ArrayList<Boolean> checkmodes = new ArrayList<>();
     private void addSubtreeToCheckingStateTracking(DefaultMutableTreeNode node, boolean selected) {
         TreeNode[] path = node.getPath();
         TreePath tp = new TreePath(path);
@@ -152,7 +145,7 @@ public class JCheckBoxTree extends JTree {
     // It decides how to show the nodes due to the checking-mechanism
     private class CheckBoxCellRenderer extends JPanel implements TreeCellRenderer {
         private static final long serialVersionUID = -7341833835878991719L;
-        JCheckBox checkBox;
+        final JCheckBox checkBox;
         public CheckBoxCellRenderer() {
             super();
             this.setLayout(new BorderLayout());
@@ -223,9 +216,7 @@ public class JCheckBoxTree extends JTree {
                 box.setText(tp.getLastPathComponent().toString());
                 box.setSelected(checkMode);
                 if(box.getText().equals(selfPointer.getModel().getRoot().toString())) {
-                    for(int i = 0; i < checkmodes.size(); i++) {
-                        checkmodes.set(i, checkMode);
-                    }
+                    Collections.fill(checkmodes, checkMode);
                     for(int i = 0; i < selfPointer.getModel().getChildCount(selfPointer.getModel().getRoot()); i++) {
                         JCheckBox box2 = new JCheckBox();
                         box2.setText(selfPointer.getModel().getChild(selfPointer.getModel().getRoot(), i).toString());
@@ -308,7 +299,7 @@ public class JCheckBoxTree extends JTree {
     }
 
     @FunctionalInterface
-    public static interface CheckBoxListener {
+    public interface CheckBoxListener {
         void onTrigger(JCheckBox checkBox);
     }
 }

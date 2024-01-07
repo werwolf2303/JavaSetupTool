@@ -1,13 +1,18 @@
 package de.werwolf2303.javasetuptool.utils;
 
-import java.io.*;
+import de.werwolf2303.javasetuptool.logging.ConsoleLogging;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 public class StreamUtils {
     public static String inputStreamToString(InputStream stream) {
         try {
             String newLine = System.getProperty("line.separator");
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(stream));
-            StringBuffer result = new StringBuffer();
+            StringBuilder result = new StringBuilder();
             for (String line; (line = reader.readLine()) != null; ) {
                 if (result.length() > 0) {
                     result.append(newLine);
@@ -16,7 +21,7 @@ public class StreamUtils {
             }
             return result.toString();
         }catch (IOException e) {
-            e.printStackTrace();
+            ConsoleLogging.Throwable(e);
             return "";
         }
     }
