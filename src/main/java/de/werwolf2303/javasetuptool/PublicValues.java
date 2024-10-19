@@ -1,8 +1,6 @@
 package de.werwolf2303.javasetuptool;
 
 import de.werwolf2303.javasetuptool.components.FeatureSelectionComponent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -25,5 +23,10 @@ public class PublicValues {
     public static Runnable changeinstall;
     public static ArrayList<FeatureSelectionComponent.Feature> features; //You can use this after the FeatureSelectionComponent
     public static JPanel INTERNALContentManager;
-    public static Logger logger = LogManager.getLogger("JavaSetupTool");
+    public static Logger logger = new Logger() {
+        @Override
+        public void catching(Throwable t) {
+            System.err.println(t.getMessage());
+        }
+    };
 }
