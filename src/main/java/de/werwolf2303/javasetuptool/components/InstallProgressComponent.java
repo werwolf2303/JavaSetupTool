@@ -133,7 +133,6 @@ public class InstallProgressComponent extends JPanel implements Component {
     boolean failState = false;
 
     void doOperations() {
-        operationpath.setText("Penis Penis Penis Penis");
         progress.setMaximum(fileOperations.size());
         for (FileOperation operation : fileOperations) {
             switch (operation.operationType) {

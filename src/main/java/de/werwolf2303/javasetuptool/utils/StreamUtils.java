@@ -2,10 +2,8 @@ package de.werwolf2303.javasetuptool.utils;
 
 import de.werwolf2303.javasetuptool.PublicValues;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+
 public class StreamUtils {
     public static String inputStreamToString(InputStream stream) {
         try {
@@ -24,5 +22,15 @@ public class StreamUtils {
             PublicValues.logger.catching(e);
             return "";
         }
+    }
+
+    public static byte[] inputStreamToByteArray(InputStream stream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[16384];
+        while ((nRead = stream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        return buffer.toByteArray();
     }
 }

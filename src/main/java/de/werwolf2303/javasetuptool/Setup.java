@@ -2,6 +2,7 @@ package de.werwolf2303.javasetuptool;
 
 import de.werwolf2303.javasetuptool.components.*;
 import de.werwolf2303.javasetuptool.components.Component;
+import de.werwolf2303.javasetuptool.utils.StreamUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -191,13 +192,12 @@ public class Setup {
                     currentBuilder.components.get(i).drawable().setVisible(false);
                 }
                 if(getProgramImage() != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    byte[] bytes;
                     try {
-                        org.apache.commons.io.IOUtils.copy(getProgramImage(), baos);
+                        bytes = StreamUtils.inputStreamToByteArray(getProgramImage());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    byte[] bytes = baos.toByteArray();
                     welcomeComponent = new WelcomeComponent(setup);
                     welcomeComponent.setImage(new ByteArrayInputStream(bytes));
                     welcomeComponent.nowVisible();
