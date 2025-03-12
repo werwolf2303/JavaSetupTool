@@ -1,11 +1,12 @@
 package de.werwolf2303.javasetuptool.test;
 
 import de.werwolf2303.javasetuptool.Setup;
-import de.werwolf2303.javasetuptool.components.*;
-import de.werwolf2303.javasetuptool.components.Component;
-import javax.swing.*;
+import de.werwolf2303.javasetuptool.components.AcceptComponent;
+import de.werwolf2303.javasetuptool.components.FeatureSelectionComponent;
+import de.werwolf2303.javasetuptool.components.HTMLComponent;
+import de.werwolf2303.javasetuptool.components.InstallProgressComponent;
+
 import java.io.IOException;
-import java.util.HashMap;
 
 public class Test {
 
@@ -15,8 +16,8 @@ public class Test {
                 .setProgramName("Test Program")
                 .setProgramVersion("1.0.0")
                 .addComponents(
-                        new AcceptComponent("<a>I'm an AcceptComponent with CSSBox for rendering</a>"),
-                        new HTMLComponent("<a>I'm an HTMLComponent with CSSBox for rendering</a>"),
+                        new AcceptComponent("<a>I'm an AcceptComponent that supports html</a>"),
+                        new HTMLComponent("<a>I'm an HTMLComponent that supports html</a>"),
                         new FeatureSelectionComponent()
                                 .addFeature(new FeatureSelectionComponent.FeatureBuilder()
                                         .setName("We").build())

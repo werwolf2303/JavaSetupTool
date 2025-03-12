@@ -42,7 +42,7 @@ public class InstallProgressComponent implements Component {
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
      *
-     * 
+     * @noinspection ALL
      */
     private void $$$setupUI$$$() {
         createUIComponents();
@@ -59,6 +59,9 @@ public class InstallProgressComponent implements Component {
         contentPanel.add(spacer1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 20), new Dimension(-1, 20), new Dimension(-1, 20), 0, false));
     }
 
+    /**
+     * @noinspection ALL
+     */
     public JComponent $$$getRootComponent$$$() {
         return contentPanel;
     }

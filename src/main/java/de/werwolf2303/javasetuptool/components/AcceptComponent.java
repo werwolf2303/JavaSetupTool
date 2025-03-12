@@ -1,31 +1,20 @@
 package de.werwolf2303.javasetuptool.components;
 
-import org.fit.cssbox.awt.BrowserCanvas;
-import org.fit.cssbox.css.CSSNorm;
-import org.fit.cssbox.css.DOMAnalyzer;
-import org.fit.cssbox.io.*;
-import org.fit.cssbox.layout.Dimension;
-import org.xml.sax.SAXException;
+import de.werwolf2303.javasetuptool.utils.StreamUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 /**
- * This component contains an "Accept" and "Decline" button, that can be used for license agreements.
+ * This component contains an "Accept" and "Decline" button, and an HTML area that can be used for license agreements.
  * <br><img alt="AcceptComponent" src="./doc-files/AcceptComponent.png" />
  */
 public class AcceptComponent extends JPanel implements Component {
-    DocumentSource docSource;
-    DOMSource domSource;
     JScrollPane pane;
     JEditorPane content;
     boolean scrolldown = false;
@@ -35,8 +24,7 @@ public class AcceptComponent extends JPanel implements Component {
     JFrame frame;
 
     boolean didAccept = false;
-    boolean initialized = false;
-    private BrowserCanvas browserCanvas;
+    private JEditorPane editorPane;
 
     AdjustmentListener listener = new AdjustmentListener() {
         @Override
@@ -54,6 +42,10 @@ public class AcceptComponent extends JPanel implements Component {
 
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        editorPane = new JEditorPane();
+        editorPane.setBackground(new Color(0, 0, 0, 0));
+        editorPane.setContentType("text/html");
     }
 
 
@@ -64,9 +56,7 @@ public class AcceptComponent extends JPanel implements Component {
      * @throws IOException - throws if the document cannot be loaded
      */
     public AcceptComponent(String html) throws IOException {
-        docSource = new StreamDocumentSource(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)), new URL("http://localhost"), "text/html");
-        domSource = new DefaultDOMSource(docSource);
-        createBrowserCanvas(domSource, docSource);
+        editorPane.setText(html);
     }
 
     /**
@@ -76,9 +66,7 @@ public class AcceptComponent extends JPanel implements Component {
      * @throws IOException - throws if the document cannot be loaded
      */
     public AcceptComponent(URL url) throws IOException {
-        docSource = new DefaultDocumentSource(url);
-        domSource = new DefaultDOMSource(docSource);
-        createBrowserCanvas(domSource, docSource);
+        editorPane.setText(StreamUtils.inputStreamToString(url.openStream()));
     }
 
     @Override
@@ -114,18 +102,7 @@ public class AcceptComponent extends JPanel implements Component {
         content.setEditable(false);
         pane = new JScrollPane(content);
         add(pane, BorderLayout.CENTER);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                if(!initialized) {
-                    initialized = true;
-                }else return;
-                browserCanvas.createLayout(new Dimension(pane.getViewport().getWidth(), pane.getViewport().getHeight()));
-                revalidate();
-                repaint();
-            }
-        });
-        pane.setViewportView(browserCanvas);
+        pane.setViewportView(editorPane);
     }
 
     @Override
@@ -144,23 +121,6 @@ public class AcceptComponent extends JPanel implements Component {
         nextButton.setEnabled(true);
         custom1.setVisible(false);
         custom2.setVisible(false);
-    }
-
-
-    private void createBrowserCanvas(DOMSource domSource, DocumentSource docSource) {
-        try {
-            DOMAnalyzer da = new DOMAnalyzer(domSource.parse(), docSource.getURL());
-            da.attributesToStyles();
-            da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT);
-            da.addStyleSheet(null, CSSNorm.userStyleSheet(), DOMAnalyzer.Origin.AGENT);
-            da.getStyleSheets();
-            browserCanvas = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
-            browserCanvas.repaint();
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

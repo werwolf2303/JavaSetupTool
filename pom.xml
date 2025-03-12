@@ -45,11 +45,6 @@
             <artifactId>java-gui-forms-rt</artifactId>
             <version>242.22855.106</version>
         </dependency>
-        <dependency>
-            <groupId>net.sf.cssbox</groupId>
-            <artifactId>cssbox</artifactId>
-            <version>5.0.0</version>
-        </dependency>
     </dependencies>
 
     <reporting>

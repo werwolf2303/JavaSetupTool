@@ -1,6 +1,7 @@
 package de.werwolf2303.javasetuptool.components;
 
 import de.werwolf2303.javasetuptool.swingextensions.ComponentViewManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
