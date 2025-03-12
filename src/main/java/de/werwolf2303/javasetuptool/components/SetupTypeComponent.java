@@ -1,399 +1,247 @@
 package de.werwolf2303.javasetuptool.components;
 
-import de.werwolf2303.javasetuptool.PublicValues;
-import de.werwolf2303.javasetuptool.Setup;
-
+import de.werwolf2303.javasetuptool.swingextensions.ComponentViewManager;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
+/**
+ * Component that contains options for selecting the setup type.
+ * <br>e.g. Typical, Custom, Complete
+ * <br> <img alt="HTMLComponent" src="./doc-files/SetupTypeComponent.png" />
+ */
 public class SetupTypeComponent extends JPanel implements Component {
     //https://i.stack.imgur.com/845qn.jpg
-    final Setup setup;
-    JButton next;
-    JButton prev;
     final ArrayList<Component> typicalcomponents = new ArrayList<>();
     final ArrayList<Component> customcomponents = new ArrayList<>();
     final ArrayList<Component> completecomponents = new ArrayList<>();
-    Setup.SetupBuilder builder;
+    boolean showTypical = false;
+    boolean showComplete = false;
+    boolean showCustom = false;
+    HashMap<String, Object> storage;
+    ComponentViewManager viewManager;
+    JPanel selectionContent;
     JButton custom1;
     JButton custom2;
+    JButton next;
     JButton cancel;
-    Runnable fin;
-    int current = 0;
-    int ycache = 8;
-    final JCheckBox typical = new JCheckBox("Typical");
-    final JCheckBox complete = new JCheckBox("Complete");
-    final JCheckBox custom = new JCheckBox("Custom");
+    JButton previous;
+    JFrame frame;
+    private JRadioButton custombutton;
+    private JRadioButton completebutton;
+    private JRadioButton typicalbutton;
+    private JLabel completelabel;
+    private JLabel typicallabel;
+    private JPanel customPanel;
+    private JPanel completePanel;
+    private JPanel typicalPanel;
+    private JLabel customText;
 
-    public SetupTypeComponent(Setup setup) {
-        this.setup = setup;
-        setLayout(null);
+    @Override
+    public void makeVisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        this.storage = storage;
+        this.custom1 = custom1;
+        this.custom2 = custom2;
+        this.next = nextButton;
+        this.cancel = cancelButton;
+        this.frame = frame;
+        this.previous = previousButton;
+        setVisible(true);
     }
 
-    public void showComplete() {
-        add(complete);
-        complete.setFont(fontSize(complete.getFont(), 13));
-        complete.setLocation(13, ycache);
-        ycache += (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 - 7;
-        complete.setSize(new Dimension(PublicValues.setup_width / 3, (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 / 2));
-        JTextArea area = new JTextArea("All program features will be installed. (Requires the most disk\nspace.)");
-        add(area);
-        area.setBackground(getBackground());
-        area.setLocation(complete.getX() + 110, complete.getY() + 40);
-        area.setSize(new Dimension(PublicValues.setup_width - complete.getWidth() + 110, 66));
-        complete.addActionListener(e -> {
-            resetBoxes(complete);
-            PublicValues.INTERNALType = PublicValues.SetupType.COMPLETE;
-        });
+    @Override
+    public void makeInvisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        setVisible(false);
     }
 
-    @SuppressWarnings("all")
-    Font fontSize(Font f, int size) {
-        return new Font(f.getName(), Font.BOLD, size);
-    }
+    @Override
+    public void init(JFrame frame, int width, int height, HashMap<String, Object> setupVariables) {
+        setLayout(new BorderLayout());
 
-    public void showTypical() {
-        add(typical);
-        typical.setFont(fontSize(typical.getFont(), 13));
-        typical.setLocation(13, ycache);
-        ycache += (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 - 7;
-        typical.setSize(new Dimension(PublicValues.setup_width / 3, (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 / 2));
-        JTextArea area = new JTextArea("Common program features will be installed.");
-        add(area);
-        area.setBackground(getBackground());
-        area.setLocation(typical.getX() + 110, typical.getY() + 40);
-        area.setSize(new Dimension(PublicValues.setup_width - typical.getWidth() + 110, 66));
-        typical.addActionListener(e -> {
-            resetBoxes(typical);
-            PublicValues.INTERNALType = PublicValues.SetupType.TYPICAL;
-        });
-    }
+        selectionContent = new JPanel();
+        selectionContent.setLayout(new BoxLayout(selectionContent, BoxLayout.Y_AXIS));
+        selectionContent.add(Box.createVerticalGlue());
 
-    public void showCustom() {
-        add(custom);
-        custom.setLocation(13, ycache);
-        ycache += (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 - 7;
-        custom.setSize(new Dimension(PublicValues.setup_width / 3, (PublicValues.setup_height - PublicValues.setup_bar_height) / 3 / 2));
-        JTextArea area = new JTextArea("Choose which program features you want installed and where they\nwill be installed. Recommended for advanced users.");
-        add(area);
-        custom.setFont(fontSize(custom.getFont(), 13));
-        area.setBackground(getBackground());
-        area.setLocation(custom.getX() + 110, custom.getY() + 40);
-        area.setSize(new Dimension(PublicValues.setup_width - custom.getWidth() + 110, 66));
-        custom.addActionListener(e -> {
-            resetBoxes(custom);
-            PublicValues.INTERNALType = PublicValues.SetupType.CUSTOM;
-        });
-    }
+        customPanel = new JPanel();
+        customPanel.setLayout(new BorderLayout(7, 0));
+        customPanel.setVisible(false);
 
-    void resetBoxes(JCheckBox box) {
-        if(!box.getText().equals(custom.getText())) {
-            custom.setSelected(false);
+        custombutton = new JRadioButton("Custom");
+        custombutton.setFont(getFont().deriveFont(Font.BOLD));
+        customPanel.add(custombutton, BorderLayout.WEST);
+
+        customText = new JLabel("Choose which program features you want installed and where they will be installed");
+        customText.setBackground(new Color(0, 0, 0, 0));
+        customPanel.add(customText, BorderLayout.CENTER);
+
+        typicalPanel = new JPanel();
+        typicalPanel.setLayout(new BorderLayout(7, 0));
+        typicalPanel.setVisible(false);
+
+        typicalbutton = new JRadioButton("Typical");
+        typicalbutton.setFont(getFont().deriveFont(Font.BOLD));
+        typicalPanel.add(typicalbutton, BorderLayout.WEST);
+
+        typicallabel = new JLabel("Common program features will be installed");
+        typicallabel.setFont(customText.getFont());
+        typicalPanel.add(typicallabel, BorderLayout.CENTER);
+
+        completePanel = new JPanel();
+        completePanel.setLayout(new BorderLayout(7, 0));
+        completePanel.setVisible(false);
+
+        completebutton = new JRadioButton("Complete");
+        completebutton.setFont(getFont().deriveFont(Font.BOLD));
+        completePanel.add(completebutton, BorderLayout.WEST);
+
+        completelabel = new JLabel("All program features will be installed. (Requires the most disk space.)");
+        completelabel.setFont(customText.getFont());
+        completePanel.add(completelabel, BorderLayout.CENTER);
+
+        viewManager = new ComponentViewManager();
+        viewManager.addPanel(selectionContent);
+        selectionContent.setVisible(true);
+
+        add(viewManager, BorderLayout.CENTER);
+
+        if (showComplete) {
+            completePanel.setVisible(true);
+            completebutton.addActionListener(e -> {
+                typicalbutton.setSelected(false);
+                custombutton.setSelected(false);
+
+                viewManager.removeAllComponents();
+                viewManager.addPanel(selectionContent);
+                for (Component component : completecomponents) {
+                    viewManager.addComponent(component);
+                    component.init(frame, width, height, setupVariables);
+                }
+                selectionContent.setVisible(true);
+
+                storage.put("setuptype", SetupType.COMPLETE);
+            });
+            selectionContent.add(completePanel);
+            selectionContent.add(Box.createVerticalGlue());
         }
-        if(!box.getText().equals(typical.getText())) {
-            typical.setSelected(false);
-        }
-        if(!box.getText().equals(complete.getText())) {
-            complete.setSelected(false);
-        }
-    }
 
-    public void buildCustom(Component... components) {
-        customcomponents.addAll(Arrays.asList(components));
-    }
+        if (showTypical) {
+            typicalPanel.setVisible(true);
+            typicalbutton.addActionListener(e -> {
+                custombutton.setSelected(false);
+                completebutton.setSelected(false);
 
-    public void buildTypical(Component... components) {
-        typicalcomponents.addAll(Arrays.asList(components));
-    }
+                viewManager.removeAllComponents();
+                viewManager.addPanel(selectionContent);
+                for (Component component : typicalcomponents) {
+                    viewManager.addComponent(component);
+                    component.init(frame, width, height, setupVariables);
+                }
+                selectionContent.setVisible(true);
 
-    public void buildComplete(Component... components) {
-        completecomponents.addAll(Arrays.asList(components));
-    }
+                storage.put("setuptype", SetupType.TYPICAL);
+            });
+            selectionContent.add(typicalPanel);
+            selectionContent.add(Box.createVerticalGlue());
+        }
 
-    boolean atSetupTypeComponent = true;
-    boolean install = false;
+        if (showCustom) {
+            customPanel.setVisible(true);
+            custombutton.addActionListener(e -> {
+                typicalbutton.setSelected(false);
+                completebutton.setSelected(false);
 
-    void next() {
-        if(!PublicValues.INTERNALBlockNextPrev) {
-            return;
-        }
-        if(!custom.isSelected() && !typical.isSelected() && !complete.isSelected()) {
-            return;
-        }
-        if(atSetupTypeComponent) {
-            setVisible(false);
-            switch (PublicValues.INTERNALType) {
-                case COMPLETE:
-                    if(current == completecomponents.size() - 1) {
-                        PublicValues.changeinstall.run();
-                        install = true;
-                    }
-                    completecomponents.get(current).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    completecomponents.get(current).drawable().setVisible(true);
-                    completecomponents.get(current).drawable().repaint();
-                    completecomponents.get(current).nowVisible();
-                    completecomponents.get(current).init();
-                    break;
-                case CUSTOM:
-                    if(current == customcomponents.size() - 1) {
-                        PublicValues.changeinstall.run();
-                        install = true;
-                    }
-                    customcomponents.get(current).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    customcomponents.get(current).drawable().setVisible(true);
-                    customcomponents.get(current).drawable().repaint();
-                    customcomponents.get(current).nowVisible();
-                    customcomponents.get(current).init();
-                    break;
-                case TYPICAL:
-                    if(current == typicalcomponents.size() - 1) {
-                        PublicValues.changeinstall.run();
-                        install = true;
-                    }
-                    typicalcomponents.get(current).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    typicalcomponents.get(current).drawable().setVisible(true);
-                    typicalcomponents.get(current).drawable().repaint();
-                    typicalcomponents.get(current).nowVisible();
-                    typicalcomponents.get(current).init();
-                    break;
-            }
-            atSetupTypeComponent = false;
-            return;
-        }
-        switch (PublicValues.INTERNALType) {
-            case COMPLETE:
-                if (install) {
-                    completecomponents.get(current).onLeave();
-                    PublicValues.install.run();
-                    return;
+                viewManager.removeAllComponents();
+                viewManager.addPanel(selectionContent);
+                for (Component component : customcomponents) {
+                    viewManager.addComponent(component);
+                    component.init(frame, width, height, setupVariables);
                 }
-                if(completecomponents.size() == current + 2) {
-                    install = true;
-                    PublicValues.changeinstall.run();
-                }
-                resetUserButtons();
-                completecomponents.get(current).onLeave();
-                completecomponents.get(current).drawable().setVisible(false);
-                completecomponents.get(current + 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                completecomponents.get(current + 1).drawable().setVisible(true);
-                completecomponents.get(current + 1).drawable().repaint();
-                completecomponents.get(current + 1).nowVisible();
-                completecomponents.get(current + 1).init();
-                current++;
-                break;
-            case CUSTOM:
-                if (install) {
-                    customcomponents.get(current).onLeave();
-                    PublicValues.install.run();
-                    return;
-                }
-                if(customcomponents.size() == current + 2) {
-                    install = true;
-                    PublicValues.changeinstall.run();
-                }
-                resetUserButtons();
-                customcomponents.get(current).onLeave();
-                customcomponents.get(current).drawable().setVisible(false);
-                customcomponents.get(current + 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                customcomponents.get(current + 1).drawable().setVisible(true);
-                customcomponents.get(current + 1).drawable().repaint();
-                customcomponents.get(current + 1).nowVisible();
-                customcomponents.get(current + 1).init();
-                current++;
-                if (current > customcomponents.size()) {
-                    PublicValues.changeinstall.run();
-                    install = true;
-                }
-                break;
-            case TYPICAL:
-                if (install) {
-                    typicalcomponents.get(current).onLeave();
-                    PublicValues.install.run();
-                    return;
-                }
-                if(typicalcomponents.size() == current + 2) {
-                    install = true;
-                    PublicValues.changeinstall.run();
-                }
-                resetUserButtons();
-                typicalcomponents.get(current).onLeave();
-                typicalcomponents.get(current).drawable().setVisible(false);
-                typicalcomponents.get(current + 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                typicalcomponents.get(current + 1).drawable().setVisible(true);
-                typicalcomponents.get(current + 1).drawable().repaint();
-                typicalcomponents.get(current + 1).nowVisible();
-                typicalcomponents.get(current + 1).init();
-                current++;
-                if (current > typicalcomponents.size()) {
-                    PublicValues.changeinstall.run();
-                    install = true;
-                }
-                break;
-        }
-    }
+                selectionContent.setVisible(true);
 
-    void resetUserButtons() {
-        custom1.setVisible(false);
-        custom2.setVisible(false);
-    }
-
-    void previous() {
-        if(!PublicValues.INTERNALBlockNextPrev) {
-            return;
-        }
-        if(atSetupTypeComponent) {
-            atSetupTypeComponent = false;
-            PublicValues.INTERNALBlockNextPrev = false;
-            next.removeActionListener(nextlistener);
-            prev.removeActionListener(prevlistener);
-            install = false;
-            return;
-        }
-        PublicValues.resetNext.run();
-        resetUserButtons();
-        switch (PublicValues.INTERNALType) {
-            case COMPLETE:
-                if (current == 0) {
-                    atSetupTypeComponent = true;
-                    completecomponents.get(current).onLeave();
-                    completecomponents.get(current).drawable().setVisible(false);
-                    setVisible(true);
-                    install = false;
-                } else {
-                    if (current + 1 > completecomponents.size()) {
-                        PublicValues.resetNext.run();
-                    }
-                    completecomponents.get(current).onLeave();
-                    completecomponents.get(current).drawable().setVisible(false);
-                    completecomponents.get(current - 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    completecomponents.get(current - 1).drawable().setVisible(true);
-                    completecomponents.get(current - 1).drawable().repaint();
-                    completecomponents.get(current - 1).nowVisible();
-                    completecomponents.get(current - 1).init();
-                    current--;
-                    if (install) {
-                        PublicValues.resetNext.run();
-                        install = false;
-                    }
-                }
-                break;
-            case CUSTOM:
-                if (current == 0) {
-                    atSetupTypeComponent = true;
-                    customcomponents.get(current).onLeave();
-                    customcomponents.get(current).drawable().setVisible(false);
-                    setVisible(true);
-                    install = false;
-                } else {
-                    if (current + 1 > customcomponents.size()) {
-                        PublicValues.resetNext.run();
-                        install = false;
-                    }
-                    customcomponents.get(current).onLeave();
-                    customcomponents.get(current).drawable().setVisible(false);
-                    customcomponents.get(current - 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    customcomponents.get(current - 1).drawable().setVisible(true);
-                    customcomponents.get(current - 1).drawable().repaint();
-                    customcomponents.get(current - 1).nowVisible();
-                    customcomponents.get(current - 1).init();
-                    current--;
-                    if (install) {
-                        PublicValues.resetNext.run();
-                        install = false;
-                    }
-                }
-                break;
-            case TYPICAL:
-                if (current == 0) {
-                    atSetupTypeComponent = true;
-                    typicalcomponents.get(current).onLeave();
-                    typicalcomponents.get(current).drawable().setVisible(false);
-                    setVisible(true);
-                    install = false;
-                } else {
-                    if (current + 1 > typicalcomponents.size()) {
-                        PublicValues.resetNext.run();
-                        install = false;
-                    }
-                    typicalcomponents.get(current).onLeave();
-                    typicalcomponents.get(current).drawable().setVisible(false);
-                    typicalcomponents.get(current - 1).giveComponents(this.next, this.prev, this.cancel, this.custom1, this.custom2, this.fin, this.builder);
-                    typicalcomponents.get(current - 1).drawable().setVisible(true);
-                    typicalcomponents.get(current - 1).drawable().repaint();
-                    typicalcomponents.get(current - 1).nowVisible();
-                    typicalcomponents.get(current - 1).init();
-                    current--;
-                    if (install) {
-                        PublicValues.resetNext.run();
-                        install = false;
-                    }
-                }
-                break;
+                storage.put("setuptype", SetupType.CUSTOM);
+            });
+            selectionContent.add(customPanel);
+            selectionContent.add(Box.createVerticalGlue());
         }
     }
 
     @Override
-    public String getName() {
-        return "SetupTypeComponent";
+    public boolean onNext() {
+        if (!typicalbutton.isSelected() && !completebutton.isSelected() && !custombutton.isSelected()) {
+            return true;
+        }
+        viewManager.next(frame, custom1, custom2, next, previous, cancel, storage);
+        return viewManager.canGoNext();
     }
 
     @Override
-    public JPanel drawable() {
+    public boolean onPrevious() {
+        viewManager.previous(frame, custom1, custom2, next, previous, cancel, storage);
+        return viewManager.canGoPrevious();
+    }
+
+    @Override
+    public void onCustom1() {
+
+    }
+
+    @Override
+    public void onCustom2() {
+
+    }
+
+    @Override
+    public JPanel getContainer() {
         return this;
     }
 
-    final ActionListener nextlistener = e -> next();
-    final ActionListener prevlistener = e -> previous();
-
-    boolean first = true;
-
-    @Override
-    public void init() {
-        if(first) {
-            for(Component c : customcomponents) {
-                PublicValues.INTERNALContentManager.add(c.drawable(), BorderLayout.CENTER);
-                c.drawable().setVisible(false);
-            }
-            for(Component c : typicalcomponents) {
-                PublicValues.INTERNALContentManager.add(c.drawable(), BorderLayout.CENTER);
-                c.drawable().setVisible(false);
-            }
-            for(Component c : completecomponents) {
-                PublicValues.INTERNALContentManager.add(c.drawable(), BorderLayout.CENTER);
-                c.drawable().setVisible(false);
-            }
-            first = false;
-        }
-        if(next == null) {
-            return;
-        }
-        setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
-        next.addActionListener(nextlistener);
-        prev.addActionListener(prevlistener);
+    /**
+     * The available setup types
+     */
+    public enum SetupType {
+        COMPLETE,
+        TYPICAL,
+        CUSTOM
     }
 
-    @Override
-    public void nowVisible() {
-        atSetupTypeComponent = true;
-        PublicValues.INTERNALBlockNextPrev = true;
+    /**
+     * This method makes the custom option available with the components
+     * specified in the argument
+     *
+     * @param components - The components to be displayed when custom was selected
+     * @return the class itself
+     */
+    public SetupTypeComponent buildCustom(Component... components) {
+        customcomponents.addAll(Arrays.asList(components));
+        showCustom = true;
+        return this;
     }
 
-    @Override
-    public void onLeave() {
-
+    /**
+     * This method makes the typical option available with the components
+     * specified in the argument
+     *
+     * @param components - The components to be displayed when typical was selected
+     * @return the class itself
+     */
+    public SetupTypeComponent buildTypical(Component... components) {
+        typicalcomponents.addAll(Arrays.asList(components));
+        showTypical = true;
+        return this;
     }
 
-    @Override
-    public void giveComponents(JButton next, JButton previous, JButton cancel, JButton custom1, JButton custom2, Runnable fin, Setup.SetupBuilder builder) {
-        this.next = next;
-        this.prev = previous;
-        this.cancel = cancel;
-        this.custom1 = custom1;
-        this.custom2 = custom2;
-        this.fin = fin;
-        this.builder = builder;
+    /**
+     * This method makes the complete option available with the components
+     * specified in the argument
+     *
+     * @param components - The components to be displayed when complete was selected
+     * @return the class itself
+     */
+    public SetupTypeComponent buildComplete(Component... components) {
+        completecomponents.addAll(Arrays.asList(components));
+        showComplete = true;
+        return this;
     }
 }

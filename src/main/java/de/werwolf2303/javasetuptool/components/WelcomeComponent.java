@@ -1,73 +1,113 @@
 package de.werwolf2303.javasetuptool.components;
 
-import de.werwolf2303.javasetuptool.PublicValues;
 import de.werwolf2303.javasetuptool.Setup;
+import de.werwolf2303.javasetuptool.swingextensions.JImagePanel;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 
-public class WelcomeComponent extends JPanel implements PrivateComponent {
-    final Setup setup;
-    final JEditorPane pane;
-    final JLabel image;
-    InputStream imageStream = null;
-    Setup.SetupBuilder builder;
-    public WelcomeComponent(Setup setup) {
-        this.setup = setup;
-        setBackground(Color.white);
-        pane = new JEditorPane();
+/**
+ * The component is the first thing the user sees when the setup opens.
+ * <br> <img alt="HTMLComponent" src="./doc-files/WelcomeComponent.png" />
+ */
+public class WelcomeComponent implements Component {
+    private JPanel contentPanel;
+    private JEditorPane pane;
+    private JImagePanel image;
+    private JButton backButton;
+
+    @Override
+    public void makeVisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        contentPanel.setVisible(true);
+        backButton = previousButton;
+        backButton.setVisible(false);
+    }
+
+    @Override
+    public void makeInvisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        contentPanel.setVisible(false);
+    }
+
+    @Override
+    public void init(JFrame frame, int width, int height, HashMap<String, Object> setupVariables) {
+        pane.setBackground(new Color(0, 0, 0, 0));
         pane.setEditable(false);
         pane.setContentType("text/html");
-        image = new JLabel();
-        setLayout(null);
-        add(image);
-        add(pane);
-    }
-
-    public void setImage(InputStream stream) {
-        this.imageStream = stream;
-    }
-
-    public String getName() {
-        return "FirstPageComponent";
-    }
-    public JPanel drawable() {
-        return this;
-    }
-
-    public void init() {
-        setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
-        //image.setPreferredSize(new Dimension(PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
-        image.setBounds(0, 0, PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height);
-        pane.setBounds((int) (image.getBounds().getX() + image.getBounds().getWidth() + 4), 0, (int) (PublicValues.setup_width - image.getBounds().getX() + image.getBounds().getWidth() + 4), PublicValues.setup_height - PublicValues.setup_bar_height);
-        //pane.setPreferredSize(new Dimension(PublicValues.setup_width - PublicValues.setup_width / 100 * 25, PublicValues.setup_height - PublicValues.setup_bar_height));
-        pane.setText("<h2 style='text-align:left'>Welcome to the " + setup.getProgramName() + " Setup Wizard</h2><br><br><br><a style='text-align:left'>This will install " + setup.getProgramName() + " version " + setup.getProgramVersion() + " on your computer.</a><br><br><a>Click next to continue, or cancel to exit Setup</a>");
-        if(image.getIcon() == null) {
-            if(imageStream != null) {
-                try {
-                    ImageIcon imageIcon = new ImageIcon(ImageIO.read(imageStream));
-                    Image img = imageIcon.getImage();
-                    Image newimg = img.getScaledInstance((int) image.getBounds().getWidth(), (int) image.getBounds().getHeight(), Image.SCALE_SMOOTH);
-                    image.setIcon(new ImageIcon(newimg));
-                } catch (IOException ignored) {
-                }
-            }
+        pane.setText("<h2 style='text-align:left'>Welcome to the " + setupVariables.getOrDefault("programname", "N/A") + " Setup Wizard</h2><br><br><br><a style='text-align:left'>This will install " + setupVariables.getOrDefault("programname", "N/A") + " version " + setupVariables.getOrDefault("programversion", "N/A") + " on your computer.</a><br><br><a>Click next to continue, or cancel to exit Setup</a>");
+        image.setBackground(new Color(0, 0, 0, 0));
+        if (setupVariables.containsKey("programimage")) {
+            image.setImage(new ByteArrayInputStream((byte[]) setupVariables.get("programimage")));
+        } else {
+            image.setImage(Setup.class.getResourceAsStream("/JSTBranding.png"));
         }
-        repaint();
     }
 
-    public void nowVisible() {
+    @Override
+    public boolean onNext() {
+        backButton.setVisible(true);
+        return false;
+    }
+
+    @Override
+    public boolean onPrevious() {
+        return false;
+    }
+
+    @Override
+    public void onCustom1() {
 
     }
 
-    public void onLeave() {
+    @Override
+    public void onCustom2() {
 
     }
 
-    public void giveComponents(JButton next, JButton previous, JButton cancel, JButton custom1, JButton custom2, Runnable fin, Setup.SetupBuilder builder) {
-        this.builder = builder;
+    @Override
+    public JPanel getContainer() {
+        return contentPanel;
     }
+
+    void createUIComponents() {
+        image = new JImagePanel();
+    }
+
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * 
+     */
+    private void $$$setupUI$$$() {
+        createUIComponents();
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BorderLayout(0, 0));
+        contentPanel.setAlignmentX(0.0f);
+        contentPanel.setAlignmentY(0.0f);
+        pane = new JEditorPane();
+        pane.setAlignmentX(0.0f);
+        pane.setAlignmentY(0.0f);
+        pane.setContentType("text/html");
+        pane.setMargin(new Insets(0, 7, 0, 0));
+        contentPanel.add(pane, BorderLayout.CENTER);
+        contentPanel.add(image, BorderLayout.WEST);
+    }
+
+    /**
+     * 
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return contentPanel;
+    }
+
 }

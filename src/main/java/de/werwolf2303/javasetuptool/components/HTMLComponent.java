@@ -1,58 +1,129 @@
 package de.werwolf2303.javasetuptool.components;
 
-import de.werwolf2303.javasetuptool.PublicValues;
-import de.werwolf2303.javasetuptool.Setup;
-import de.werwolf2303.javasetuptool.utils.StreamUtils;
+import org.fit.cssbox.awt.BrowserCanvas;
+import org.fit.cssbox.css.CSSNorm;
+import org.fit.cssbox.css.DOMAnalyzer;
+import org.fit.cssbox.io.*;
+import org.fit.cssbox.layout.Dimension;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
-public class HTMLComponent extends JPanel implements Component {
-    final String defaultHTML = "<a>Load HTML with the 'load()' function</a>";
-    final JEditorPane pane;
+/**
+ * A component that can be used to display HTML content.
+ * <b>The rendered HTML is not interactive</b>
+ * <br> <img alt="HTMLComponent" src="./doc-files/HTMLComponent.png" />
+ */
+public class HTMLComponent extends JScrollPane implements Component {
+    DocumentSource docSource;
+    DOMSource domSource;
 
-    public HTMLComponent() {
-        pane = new JEditorPane();
-        pane.setEditable(false);
-        pane.setContentType("text/html");
-        pane.setText(defaultHTML);
-        add(pane, BorderLayout.CENTER);
+    boolean initialized = false;
+
+    private JPanel contentPanel;
+
+    private BrowserCanvas browserCanvas;
+
+    {
+        contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.add(this);
     }
 
-    public String getName() {
-        return "HTMLComponent";
+    /**
+     * Creates an instance of this class and displays the specified HTML
+     *
+     * @param html - HTML to load
+     * @throws IOException - throws if the HTML could not be loaded
+     */
+    public HTMLComponent(String html) throws IOException {
+        docSource = new StreamDocumentSource(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)), new URL("http://localhost"), "text/html");
+        domSource = new DefaultDOMSource(docSource);
+        createBrowserCanvas(domSource, docSource);
+        setViewportView(browserCanvas);
     }
 
-    public JPanel drawable() {
-        return this;
+    /**
+     * Creates an instance of this class and displays the specified url
+     *
+     * @param url - url to display
+     * @throws IOException - throws if the url could not be loaded
+     */
+    public HTMLComponent(URL url) throws IOException {
+        docSource = new DefaultDocumentSource(url);
+        domSource = new DefaultDOMSource(docSource);
+        createBrowserCanvas(domSource, docSource);
+        setViewportView(browserCanvas);
     }
 
-    public void init() {
-        setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
-        pane.setPreferredSize(new Dimension(PublicValues.setup_width, PublicValues.setup_height - PublicValues.setup_bar_height));
+    @Override
+    public void makeVisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        setVisible(true);
     }
 
-    public void nowVisible() {
+    @Override
+    public void makeInvisible(JFrame frame, JButton custom1, JButton custom2, JButton nextButton, JButton previousButton, JButton cancelButton, HashMap<String, Object> storage) {
+        setVisible(false);
+    }
+
+    @Override
+    public void init(JFrame frame, int width, int height, HashMap<String, Object> setupVariables) {
+        contentPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                if(!initialized) {
+                    initialized = true;
+                }else return;
+                browserCanvas.createLayout(new Dimension(getViewport().getWidth(), getViewport().getHeight()));
+                revalidate();
+                repaint();
+            }
+        });
+    }
+
+    @Override
+    public boolean onNext() {
+        return false;
+    }
+
+    @Override
+    public boolean onPrevious() {
+        return false;
+    }
+
+    @Override
+    public void onCustom1() {
 
     }
 
-    public void onLeave() {
+    @Override
+    public void onCustom2() {
 
     }
 
-    public void giveComponents(JButton next, JButton previous, JButton cancel, JButton custom1, JButton custom2, Runnable fin, Setup.SetupBuilder builder) {
-
+    @Override
+    public JPanel getContainer() {
+        return contentPanel;
     }
 
-    public void load(String html) {
-        pane.setText(html);
-    }
-
-    public void load(URL url) {
+    private void createBrowserCanvas(DOMSource domSource, DocumentSource docSource) {
         try {
-            pane.setText(StreamUtils.inputStreamToString(url.openStream()));
+            DOMAnalyzer da = new DOMAnalyzer(domSource.parse(), docSource.getURL());
+            da.attributesToStyles();
+            da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT);
+            da.addStyleSheet(null, CSSNorm.userStyleSheet(), DOMAnalyzer.Origin.AGENT);
+            da.getStyleSheets();
+            browserCanvas = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
+            browserCanvas.repaint();
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

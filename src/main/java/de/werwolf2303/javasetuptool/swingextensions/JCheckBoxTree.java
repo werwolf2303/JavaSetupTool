@@ -21,11 +21,21 @@ public class JCheckBoxTree extends JTree {
         //Default
     };
 
+    int width = 0;
+
+    public JCheckBoxTree(int width) {
+        this();
+        this.width = width;
+    }
+
 
     public void addCheckActionListener(CheckBoxListener listener) {
         l = listener;
     }
 
+    public void removeCheckActionListener() {
+        l = checkBox -> {};
+    }
 
 
     // Defining data structure that will enable to fast check-indicate the state of each node
@@ -167,9 +177,14 @@ public class JCheckBoxTree extends JTree {
             checkBox.setSelected(cn.isSelected);
             checkBox.setText(obj.toString());
             checkBox.setOpaque(cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected);
-            checkBox.setSize(selfPointer.getWidth(), checkBox.getHeight());
+            checkBox.setSize(width, checkBox.getHeight());
             add(checkBox, BorderLayout.CENTER);
             return this;
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(width, (int) super.getPreferredSize().getHeight());
         }
     }
 
@@ -288,14 +303,6 @@ public class JCheckBoxTree extends JTree {
         } else {
             checkedPaths.remove(tp);
         }
-    }
-
-    public void save() {
-
-    }
-
-    public void load() {
-
     }
 
     @FunctionalInterface
