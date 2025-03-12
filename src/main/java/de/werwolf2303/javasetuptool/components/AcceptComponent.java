@@ -44,7 +44,6 @@ public class AcceptComponent extends JPanel implements Component {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         editorPane = new JEditorPane();
-        editorPane.setBackground(new Color(0, 0, 0, 0));
         editorPane.setContentType("text/html");
     }
 
