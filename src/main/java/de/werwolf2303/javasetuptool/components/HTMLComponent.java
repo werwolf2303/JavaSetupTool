@@ -26,6 +26,7 @@ public class HTMLComponent extends JScrollPane implements Component {
         contentPanel.add(this);
 
         editorPane = new JEditorPane();
+        editorPane.setEditable(false);
         editorPane.setContentType("text/html");
         setViewportView(editorPane);
     }
