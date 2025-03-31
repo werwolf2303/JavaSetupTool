@@ -11,6 +11,7 @@ import de.werwolf2303.javasetuptool.swingextensions.ComponentViewManager;
 import de.werwolf2303.javasetuptool.utils.StreamUtils;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -92,19 +93,25 @@ public class Setup extends JFrame {
         this.componentStorage = new HashMap<>();
         this.setup = this;
 
-        try {
-            if (values.containsKey("lookandfeel")) {
+        if (values.containsKey("lookandfeel")) {
+            try {
+                UIManager.setLookAndFeel((LookAndFeel) values.get("lookandfeel"));
+            } catch (UnsupportedLookAndFeelException e) {
+                logger.warning("The custom look and feel is not supported on your operating system. Falling back to WebLookAndFeel");
                 try {
-                    UIManager.setLookAndFeel((LookAndFeel) values.get("lookandfeel"));
-                } catch (UnsupportedLookAndFeelException e) {
-                    logger.warning("The custom look and feel is not supported on your operating system. Falling back to WebLookAndFeel");
                     UIManager.setLookAndFeel(new WebLookAndFeel());
+                } catch (ExceptionInInitializerError | UnsupportedLookAndFeelException e2) {
+                    logger.fine("Exception in initialization of WebLookAndFeel! Falling back to default java look");
+                    e2.printStackTrace();
                 }
-            } else {
-                UIManager.setLookAndFeel(new WebLookAndFeel());
             }
-        } catch (UnsupportedLookAndFeelException e) {
-            logger.warning("WebLookAndFeel is not supported on your operating system. Falling back to Metal");
+        } else {
+            try {
+                UIManager.setLookAndFeel(new WebLookAndFeel());
+            } catch (ExceptionInInitializerError | UnsupportedLookAndFeelException e) {
+                logger.fine("Exception in initialization of WebLookAndFeel! Falling back to default java look");
+                e.printStackTrace();
+            }
         }
 
         setTitle(values.getOrDefault("programname", "N/A") + " - " + values.getOrDefault("programversion", "N/A"));
