@@ -9,20 +9,6 @@
       <alignmentY value="0.0"/>
     </properties>
     <border type="none"/>
-    <children>
-      <component id="6b138" class="javax.swing.JEditorPane" binding="pane">
-        <constraints border-constraint="Center"/>
-        <properties>
-          <alignmentX value="0.0"/>
-          <alignmentY value="0.0"/>
-          <contentType value="text/html"/>
-          <margin top="0" left="7" bottom="0" right="0"/>
-        </properties>
-      </component>
-      <component id="3dfff" class="de.werwolf2303.javasetuptool.swingextensions.JImagePanel" binding="image" custom-create="true">
-        <constraints border-constraint="West"/>
-        <properties/>
-      </component>
-    </children>
+    <children/>
   </grid>
 </form>

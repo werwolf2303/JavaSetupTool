@@ -31,14 +31,28 @@ public class FinishComponent implements Component {
 
     @Override
     public void init(JFrame frame, int width, int height, HashMap<String, Object> setupVariables) {
-        contentPanel.setBackground(new Color(0, 0, 0, 0));
-
+        pane = new JEditorPane();
+        pane.setBackground(new Color(0, 0, 0, 0));
+        pane.setEditable(false);
+        pane.setContentType("text/html");
         pane.setText("<h2 style='text-align:left'>Completing the " + setupVariables.getOrDefault("programname", "N/A") + " Setup Wizard</h2><br><br><br><a style='text-align:left'>Setup has finished installing " + setupVariables.getOrDefault("programname", "N/A") + " version " + setupVariables.getOrDefault("programversion", "N/A") + " <br>on your computer. The application may be launched by <br> selecting the installed icons.</a><br><br><a>Click Finish to exit Setup</a>");
+
+        image = new JImagePanel();
+        image.setBackground(new Color(0, 0, 0, 0));
+        image.setMaximumSize(new Dimension(width, height));
         if (setupVariables.containsKey("programimage")) {
             image.setImage(new ByteArrayInputStream((byte[]) setupVariables.get("programimage")));
         } else {
             image.setImage(Setup.class.getResourceAsStream("/JSTBranding.png"));
         }
+
+        image.setBounds(0, 0, image.getPreferredSize().width, height);
+
+        pane.setBounds(image.getPreferredSize().width, 0, width - image.getPreferredSize().width, height);
+
+        contentPanel.setLayout(null);
+        contentPanel.add(image);
+        contentPanel.add(pane);
     }
 
     @Override
@@ -82,22 +96,18 @@ public class FinishComponent implements Component {
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
      *
-     * 
+     * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        createUIComponents();
         contentPanel = new JPanel();
         contentPanel.setLayout(new BorderLayout(0, 0));
-        pane = new JEditorPane();
-        pane.setContentType("text/html");
-        contentPanel.add(pane, BorderLayout.CENTER);
-        contentPanel.add(image, BorderLayout.WEST);
     }
 
     /**
-     * 
+     * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPanel;
     }
+
 }

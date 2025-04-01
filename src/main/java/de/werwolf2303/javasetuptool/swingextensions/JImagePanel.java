@@ -1,6 +1,8 @@
 package de.werwolf2303.javasetuptool.swingextensions;
 
 import de.werwolf2303.javasetuptool.utils.StreamUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -11,9 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class JImagePanel extends JPanel {
+    private static final Logger log = LoggerFactory.getLogger(JImagePanel.class);
     private BufferedImage image = null;
     private byte[] imagebytes;
     public boolean keepAspectRatio = true;
+    private int width,height = 0;
 
     public void setKeepAspectRatio(boolean keepAspectRatio) {
         this.keepAspectRatio = keepAspectRatio;
@@ -65,22 +69,28 @@ public class JImagePanel extends JPanel {
             xOffset = (desiredWidth - newWidth) / 2;
             yOffset = 0;
         }
-        graphics2D.drawImage(image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), xOffset, yOffset, null);
+        width = newWidth - xOffset;
+        height = newHeight - yOffset;
+        graphics2D.drawImage(image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH), 0, yOffset, null);
     }
 
     @Override
     public Dimension getPreferredSize() {
-        Dimension dimension = new Dimension(0, 0);
-        try {
-            if(imagebytes == null) {
-                return dimension;
+        if(width != 0 && height != 0) {
+            return new Dimension(width, height);
+        }else {
+            if(imagebytes == null) return new Dimension(0, 0);
+            try {
+                BufferedImage img = ImageIO.read(new ByteArrayInputStream(imagebytes));
+                int originalWidth = img.getWidth();
+                int originalHeight = img.getHeight();
+                double aspectRatio = (double) originalWidth / originalHeight;
+                int newWidth = (int) (getMaximumSize().height * aspectRatio);
+                return new Dimension(newWidth, getMaximumSize().height);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            BufferedImage img = ImageIO.read(new ByteArrayInputStream(imagebytes));
-            dimension.setSize(img.getWidth(), img.getHeight());
-        }catch (IOException e) {
-            e.printStackTrace();
         }
-        return dimension;
     }
 
     @Override

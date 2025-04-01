@@ -32,16 +32,28 @@ public class WelcomeComponent implements Component {
 
     @Override
     public void init(JFrame frame, int width, int height, HashMap<String, Object> setupVariables) {
+        pane = new JEditorPane();
         pane.setBackground(new Color(0, 0, 0, 0));
         pane.setEditable(false);
         pane.setContentType("text/html");
         pane.setText("<h2 style='text-align:left'>Welcome to the " + setupVariables.getOrDefault("programname", "N/A") + " Setup Wizard</h2><br><br><br><a style='text-align:left'>This will install " + setupVariables.getOrDefault("programname", "N/A") + " version " + setupVariables.getOrDefault("programversion", "N/A") + " on your computer.</a><br><br><a>Click next to continue, or cancel to exit Setup</a>");
+
+        image = new JImagePanel();
         image.setBackground(new Color(0, 0, 0, 0));
+        image.setMaximumSize(new Dimension(width, height));
         if (setupVariables.containsKey("programimage")) {
             image.setImage(new ByteArrayInputStream((byte[]) setupVariables.get("programimage")));
         } else {
             image.setImage(Setup.class.getResourceAsStream("/JSTBranding.png"));
         }
+
+        image.setBounds(0, 0, image.getPreferredSize().width, height);
+
+        pane.setBounds(image.getPreferredSize().width, 0, width - image.getPreferredSize().width, height);
+
+        contentPanel.setLayout(null);
+        contentPanel.add(image);
+        contentPanel.add(pane);
     }
 
     @Override
@@ -86,25 +98,17 @@ public class WelcomeComponent implements Component {
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
      *
-     * 
+     * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-        createUIComponents();
         contentPanel = new JPanel();
         contentPanel.setLayout(new BorderLayout(0, 0));
         contentPanel.setAlignmentX(0.0f);
         contentPanel.setAlignmentY(0.0f);
-        pane = new JEditorPane();
-        pane.setAlignmentX(0.0f);
-        pane.setAlignmentY(0.0f);
-        pane.setContentType("text/html");
-        pane.setMargin(new Insets(0, 7, 0, 0));
-        contentPanel.add(pane, BorderLayout.CENTER);
-        contentPanel.add(image, BorderLayout.WEST);
     }
 
     /**
-     * 
+     * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPanel;
